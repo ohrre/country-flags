@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Name the Flag</title>
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 60%, #020617 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      
+      --accent-primary: #6366f1;
+      --accent-primary-hover: #4f46e5;
+      
+      --success-color: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.35);
+      
+      --danger-color: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.35);
+      
+      --warning-color: #f59e0b;
+      
+      --input-bg: rgba(15, 23, 42, 0.6);
+      --input-border: rgba(255, 255, 255, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* GLASS CARD CONTAINER */
+    .container {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 36px 30px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      text-align: center;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 28px;
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--accent-primary);
+      color: #ffffff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+      width: 100%;
+    }
+
+    .btn:hover {
+      background-color: var(--accent-primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      box-shadow: none;
+      width: 48%;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      box-shadow: none;
+      width: 48%;
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.25);
+      box-shadow: 0 4px 14px var(--danger-glow);
+    }
+
+    /* GAME HEADER */
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .progress-tag { color: var(--text-muted); }
+    .timer { color: var(--warning-color); font-variant-numeric: tabular-nums; }
+    .lives { color: var(--danger-color); letter-spacing: 2px; }
+
+    /* FLAG DISPLAY BOX */
+    .flag-wrapper {
+      width: 100%;
+      height: 230px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px solid var(--card-border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-bottom: 16px;
+      padding: 16px;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .flag-wrapper.correct {
+      border-color: var(--success-color);
+      box-shadow: 0 0 25px var(--success-glow);
+    }
+
+    .flag-wrapper.incorrect {
+      border-color: var(--danger-color);
+      box-shadow: 0 0 25px var(--danger-glow);
+      animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+      40%, 60% { transform: translate3d(4px, 0, 0); }
+    }
+
+    #flag-box {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #flag-box svg, #flag-box img {
+      max-width: 100% !important;
+      max-height: 100% !important;
+      width: auto !important;
+      height: auto !important;
+      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
+      border-radius: 4px;
+    }
+
+    /* FEEDBACK MESSAGE */
+    .feedback {
+      height: 28px;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .feedback.correct { color: var(--success-color); }
+    .feedback.incorrect { color: var(--danger-color); }
+
+    /* AUTOCOMPLETE / INPUT */
+    .input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--input-border);
+      background-color: var(--input-bg);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    /* AUTOCOMPLETE SUGGESTIONS */
+    .suggestions-list {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      text-align: left;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    .suggestion-item {
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: var(--text-main);
+      transition: background 0.15s ease;
+    }
+
+    .suggestion-item:hover {
+      background-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    /* RESULTS SCREEN */
+    .score-display {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin: 20px 0 10px 0;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .score-message {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-bottom: 30px;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <!-- START SCREEN -->
+    <div id="screen-start">
+      <h1>Name the Flag</h1>
+      <br>
+      <p class="subtitle">Can you name all country flags?</p>
+      <button class="btn" onclick="startGame()">Start Game</button>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="screen-game" class="hidden">
+      <div class="game-header">
+        <span class="progress-tag" id="flag-progress">Flag 1</span>
+        <span class="timer" id="timer-display">15:00</span>
+        <span class="lives" id="lives-display">❤❤❤</span>
+      </div>
+
+      <div class="flag-wrapper" id="flag-wrapper">
+        <div id="flag-box">Loading...</div>
+      </div>
+
+      <div class="feedback" id="feedback-msg"></div>
+
+      <form id="guess-form" onsubmit="handleGuess(event)" autocomplete="off">
+        <div class="input-group">
+          <input 
+            type="text" 
+            id="country-input" 
+            placeholder="Type country name..." 
+            oninput="handleAutocomplete()"
+          />
+          <div class="suggestions-list" id="suggestions-box"></div>
+        </div>
+        <button type="submit" class="btn">Submit Guess</button>
+      </form>
+
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="restartGame()">Restart</button>
+        <button class="btn btn-danger" onclick="giveUp()">Give Up</button>
+      </div>
+    </div>
+
+    <!-- END GAME SCREEN -->
+    <div id="screen-end" class="hidden">
+      <h1>Game Over</h1>
+      <div class="score-display" id="score-percentage">0%</div>
+      <p class="score-message" id="score-message"></p>
+
+      <button class="btn" onclick="restartGame()">Try Again</button>
+      <button class="btn btn-secondary" style="width: 100%; margin-top: 10px;" onclick="showStartScreen()">Exit to Menu</button>
+    </div>
+
+  </div>
+
+  <script>
+    const UN_CCA3 = new Set([
+      "AFG", "ALB", "DZA", "AND", "AGO", "ATG", "ARG", "ARM", "AUS", "AUT", "AZE", "BHS",
+      "BHR", "BGD", "BRB", "BLR", "BEL", "BLZ", "BEN", "BTN", "BOL", "BIH", "BWA", "BRA",
+      "BRN", "BGR", "BFA", "BDI", "CPV", "KHM", "CMR", "CAN", "CAF", "TCD", "CHL", "CHN",
+      "COL", "COM", "COG", "COD", "CRI", "CIV", "HRV", "CUB", "CYP", "CZE", "DNK", "DJI",
+      "DMA", "DOM", "ECU", "EGY", "SLV", "GNQ", "ERI", "EST", "SWZ", "ETH", "FJI", "FIN",
+      "FRA", "GAB", "GMB", "GEO", "DEU", "GHA", "GRC", "GRD", "GTM", "GIN", "GNB", "GUY",
+      "HTI", "HND", "HUN", "ISL", "IND", "IDN", "IRN", "IRQ", "IRL", "ISR", "ITA", "JAM",
+      "JPN", "JOR", "KAZ", "KEN", "KIR", "PRK", "KOR", "KWT", "KGZ", "LAO", "LVA", "LBN",
+      "LSO", "LBR", "LBY", "LIE", "LTU", "LUX", "MDG", "MWI", "MYS", "MDV", "MLI", "MLT",
+      "MHL", "MRT", "MUS", "MEX", "FSM", "MDA", "MCO", "MNG", "MNE", "MAR", "MOZ", "MMR",
+      "NAM", "NRU", "NPL", "NLD", "NZL", "NIC", "NER", "NGA", "MKD", "NOR", "OMN", "PAK",
+      "PLW", "PSE", "PAN", "PNG", "PRY", "PER", "PHL", "POL", "PRT", "QAT", "ROU", "RUS",
+      "RWA", "KNA", "LCA", "VCT", "WSM", "SMR", "STP", "SAU", "SEN", "SRB", "SYC", "SLE",
+      "SGP", "SVK", "SVN", "SLB", "SOM", "ZAF", "SSD", "ESP", "LKA", "SDN", "SUR", "SWE",
+      "CHE", "SYR", "TJK", "TZA", "THA", "TLS", "TGO", "TON", "TTO", "TUN", "TUR", "TKM",
+      "TUV", "UGA", "UKR", "ARE", "GBR", "USA", "URY", "UZB", "VUT", "VAT", "VEN", "VNM",
+      "YEM", "ZMB", "ZWE"
+    ]);
+
+    // COMMON ALIASES AND ACRONYMS MAPPING
+    const ALIASES = {
+      "usa": "United States",
+      "us": "United States",
+      "america": "United States",
+      "united states of america": "United States",
+      "uk": "United Kingdom",
+      "britain": "United Kingdom",
+      "great britain": "United Kingdom",
+      "uae": "United Arab Emirates",
+      "car": "Central African Republic",
+      "drc": "DR Congo",
+      "congo kinshasa": "DR Congo",
+      "dr congo": "DR Congo",
+      "democratic republic of the congo": "DR Congo",
+      "republic of the congo": "Republic of the Congo",
+      "congo brazzaville": "Republic of the Congo",
+      "nz": "New Zealand",
+      "rsa": "South Africa",
+      "png": "Papua New Guinea",
+      "svg": "Saint Vincent and the Grenadines",
+      "st vincent": "Saint Vincent and the Grenadines",
+      "st kitts": "Saint Kitts and Nevis",
+      "st lucia": "Saint Lucia",
+      "ua": "Ukraine",
+      "turkey": "Turkey",
+      "turkiye": "Turkey",
+      "syria": "Syria"
+    };
+
+    let countriesList = [];
+    let gameQueue = [];
+    let currentIndex = 0;
+    let correctAnswers = 0;
+    let attemptsLeft = 3;
+    let timerInterval = null;
+    let timeRemaining = 15 * 60;
+
+    async function initGameData() {
+      try {
+        const res = await fetch('data/countries.json');
+        if (res.ok) {
+          const rawData = await res.json();
+          countriesList = rawData
+            .filter(c => UN_CCA3.has(c.cca3))
+            .map(c => ({
+              iso_cca3: c.cca3,
+              name: c.name.common
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+        }
+      } catch (err) {
+        console.error("Failed to load country list from JSON:", err);
+      }
+    }
+
+    function showStartScreen() {
+      clearInterval(timerInterval);
+      document.getElementById('screen-start').classList.remove('hidden');
+      document.getElementById('screen-game').classList.add('hidden');
+      document.getElementById('screen-end').classList.add('hidden');
+    }
+
+    async function startGame() {
+      if (countriesList.length === 0) {
+        await initGameData();
+      }
+
+      gameQueue = [...countriesList].sort(() => 0.5 - Math.random());
+      currentIndex = 0;
+      correctAnswers = 0;
+      timeRemaining = 15 * 60;
+
+      document.getElementById('screen-start').classList.add('hidden');
+      document.getElementById('screen-end').classList.add('hidden');
+      document.getElementById('screen-game').classList.remove('hidden');
+
+      startTimer();
+      loadCurrentFlag();
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      updateTimerDisplay();
+
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      document.getElementById('timer-display').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    async function loadCurrentFlag() {
+      attemptsLeft = 3;
+      updateLivesDisplay();
+      resetFeedback();
+
+      const country = gameQueue[currentIndex];
+      document.getElementById('flag-progress').textContent = `${currentIndex + 1} / ${gameQueue.length}`;
+      document.getElementById('country-input').value = '';
+      hideSuggestions();
+
+      const flagBox = document.getElementById('flag-box');
+      flagBox.innerHTML = '<span style="color: var(--text-muted);">Loading Flag...</span>';
+
+      const flagUrl = `data/flags/${country.iso_cca3.toLowerCase()}.svg`;
+
+      try {
+        const res = await fetch(flagUrl);
+        if (res.ok) {
+          const svgText = await res.text();
+
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(svgText, "image/svg+xml");
+          const svgEl = doc.querySelector("svg");
+
+          if (svgEl) {
+            svgEl.setAttribute("width", "100%");
+            svgEl.setAttribute("height", "100%");
+            svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
+
+            if (!svgEl.hasAttribute("viewBox")) {
+              const w = (svgEl.getAttribute("width") || "").replace("px", "");
+              const h = (svgEl.getAttribute("height") || "").replace("px", "");
+              if (w && h && !isNaN(w) && !isNaN(h)) {
+                svgEl.setAttribute("viewBox", `0 0 ${w} ${h}`);
+              }
+            }
+
+            flagBox.innerHTML = "";
+            flagBox.appendChild(svgEl);
+          } else {
+            flagBox.innerHTML = svgText;
+          }
+        } else {
+          flagBox.innerHTML = `<img src="${flagUrl}" alt="Flag">`;
+        }
+      } catch (e) {
+        flagBox.innerHTML = `<img src="${flagUrl}" alt="Flag">`;
+      }
+    }
+
+    function updateLivesDisplay() {
+      document.getElementById('lives-display').textContent = '❤'.repeat(attemptsLeft);
+    }
+
+    function resetFeedback() {
+      const wrapper = document.getElementById('flag-wrapper');
+      const feedback = document.getElementById('feedback-msg');
+      wrapper.className = 'flag-wrapper';
+      feedback.className = 'feedback';
+      feedback.textContent = '';
+    }
+
+    function normalizeStr(str) {
+      return (str || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9 ]/g, "")
+        .trim();
+    }
+
+    function isAnswerCorrect(userGuess, countryName) {
+      const normGuess = normalizeStr(userGuess);
+      const normName = normalizeStr(countryName);
+
+      if (normGuess === normName) return true;
+
+      // Check Alias map
+      const mappedGuess = ALIASES[normGuess];
+      if (mappedGuess && normalizeStr(mappedGuess) === normName) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function handleGuess(event) {
+      event.preventDefault();
+      const input = document.getElementById('country-input');
+      const userGuess = input.value.trim();
+      const currentCountry = gameQueue[currentIndex];
+
+      if (!userGuess) return;
+
+      const wrapper = document.getElementById('flag-wrapper');
+      const feedback = document.getElementById('feedback-msg');
+
+      if (isAnswerCorrect(userGuess, currentCountry.name)) {
+        correctAnswers++;
+        wrapper.className = 'flag-wrapper correct';
+        feedback.className = 'feedback correct';
+        feedback.textContent = 'Correct!';
+
+        setTimeout(() => {
+          nextFlag();
+        }, 800);
+
+      } else {
+        attemptsLeft--;
+        updateLivesDisplay();
+        wrapper.className = 'flag-wrapper incorrect';
+        feedback.className = 'feedback incorrect';
+        feedback.textContent = 'Incorrect!';
+
+        if (attemptsLeft <= 0) {
+          setTimeout(() => {
+            endGame();
+          }, 800);
+        }
+      }
+    }
+
+    function nextFlag() {
+      currentIndex++;
+      if (currentIndex < gameQueue.length) {
+        loadCurrentFlag();
+      } else {
+        endGame();
+      }
+    }
+
+    function giveUp() {
+      endGame();
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    function endGame() {
+      clearInterval(timerInterval);
+
+      document.getElementById('screen-game').classList.add('hidden');
+      document.getElementById('screen-end').classList.remove('hidden');
+
+      const total = gameQueue.length || 1;
+      const percentage = Math.round((correctAnswers / total) * 100);
+
+      document.getElementById('score-percentage').textContent = `${percentage}%`;
+
+      const msgElement = document.getElementById('score-message');
+      if (percentage === 100) {
+        msgElement.textContent = "Masterclass! Perfect score.";
+      } else if (percentage >= 50) {
+        msgElement.textContent = "Great work! Getting closer to 100%.";
+      } else if (percentage >= 10) {
+        msgElement.textContent = "Good try! Keep studying those flags.";
+      } else {
+        msgElement.textContent = "Time to brush up on world geography!";
+      }
+    }
+
+    function handleAutocomplete() {
+      const inputVal = normalizeStr(document.getElementById('country-input').value);
+      const box = document.getElementById('suggestions-box');
+
+      if (!inputVal) {
+        box.style.display = 'none';
+        return;
+      }
+
+      // Check direct matches + alias matches
+      const matches = countriesList
+        .filter(c => {
+          const normCName = normalizeStr(c.name);
+          if (normCName.includes(inputVal)) return true;
+
+          // Check if typing an alias matches this country
+          for (const [alias, realName] of Object.entries(ALIASES)) {
+            if (alias.startsWith(inputVal) && normalizeStr(realName) === normCName) {
+              return true;
+            }
+          }
+          return false;
+        })
+        .slice(0, 5);
+
+      if (matches.length === 0) {
+        box.style.display = 'none';
+        return;
+      }
+
+      box.innerHTML = '';
+      matches.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'suggestion-item';
+        item.textContent = c.name;
+        item.onclick = () => {
+          document.getElementById('country-input').value = c.name;
+          box.style.display = 'none';
+        };
+        box.appendChild(item);
+      });
+
+      box.style.display = 'block';
+    }
+
+    function hideSuggestions() {
+      document.getElementById('suggestions-box').style.display = 'none';
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.input-group')) hideSuggestions();
+    });
+
+    document.addEventListener('DOMContentLoaded', initGameData);
+  </script>
+</body>
+</html>
